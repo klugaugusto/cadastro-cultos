@@ -36,12 +36,42 @@
 
         button {
             padding: 10px 20px;
-            background-color: #007bff;
             border: none;
             border-radius: 5px;
-            color: #fff;
             font-size: 16px;
             cursor: pointer;
+            margin: 0 5px;
+            width: 48%;
+        }
+
+        .btn-whatsapp {
+            background-color: #a4c639; /* Verde WhatsApp */
+            color: #fff;
+        }
+
+        .btn-visualizar {
+            background-color: #007bff; /* Azul */
+            color: #fff;
+        }
+
+        .registro {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .registro:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-editar {
+            background-color: #007bff;
+            color: #fff;
         }
     </style>
 </head>
@@ -85,7 +115,21 @@
                 <label for="numeroWhatsapp" style="font-size: 18px;">Número do Whatsapp:</label>
                 <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-9]{9,15}" placeholder="+55 (__) _________">
             </div>
-            <button type="button" onclick="enviarFormulario()">Enviar Dados</button>
+            <button type="button" class="btn-whatsapp" onclick="enviarFormulario()">Enviar Dados</button>
+            <button type="button" class="btn-visualizar" onclick="exibirVisualizacao()">Visualizar</button>
+        </form>
+    </div>
+
+    <div class="container" id="visualizacao" style="display:none;">
+        <h2>Visualização</h2>
+        <div id="listaRegistros"></div>
+    </div>
+
+    <div class="container" id="edicaoPopup" style="display:none;">
+        <h2>Edição</h2>
+        <form id="edicaoForm">
+            <!-- Os campos de edição serão gerados aqui pelo JavaScript -->
+            <button type="button" class="btn-editar" onclick="salvarAlteracoes()">Salvar Alterações</button>
         </form>
     </div>
 
@@ -108,7 +152,7 @@
             axios.post('https://api.sheetmonkey.io/form/mW4nqfcZwY47swj8qMka2t', dados)
                 .then(function (response) {
                     console.log('Dados enviados para o Sheet Monkey com sucesso:', response);
-                    enviarWhatsapp();
+                    exibirVisualizacao();
                     limparCampos();
                 })
                 .catch(function (error) {
@@ -116,31 +160,93 @@
                 });
         }
 
-        function enviarWhatsapp() {
-            var formulario = document.getElementById("cadastroForm");
-            var mensagem = "Novo registro (ID: " + generateID() + "):\n";
+        function exibirVisualizacao() {
+            document.getElementById("visualizacao").style.display = "block";
+            var listaRegistros = document.getElementById("listaRegistros");
+            listaRegistros.innerHTML = '';
 
-            for (var i = 0; i < formulario.elements.length; i++) {
-                if (formulario.elements[i].type !== "button" && formulario.elements[i].type !== "tel") {
-                    mensagem += formulario.elements[i].labels[0].innerText + ": " + formulario.elements[i].value + "\n";
-                }
-            }
+            axios.get('https://api.sheetmonkey.io/form/mW4nqfcZwY47swj8qMka2t')
+                .then(function (response) {
+                    var registros = response.data.data;
 
-            var numeroWhatsapp = document.getElementById("numeroWhatsapp").value;
-
-            if (numeroWhatsapp) {
-                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                    window.open("whatsapp://send?phone=" + numeroWhatsapp + "&text=" + encodeURIComponent(mensagem));
-                } else {
-                    alert("Você está em um dispositivo que não suporta a abertura direta do WhatsApp. Por favor, use um smartphone.");
-                }
-            } else {
-                alert("Por favor, insira um número de Whatsapp.");
-            }
+                    registros.forEach(function (registro) {
+                        var registroHTML = `
+                            <div class="registro" onclick="editarRegistro(${registro.id})">
+                                <span>${registro.fields.comunidade}</span>
+                                <span>${registro.fields.dataCulto}</span>
+                                <span>${registro.fields.presencaTotal}</span>
+                                <span>${registro.fields.totalOferta}</span>
+                                <span>${registro.fields.destinoOferta}</span>
+                                <span>${registro.fields.outrasEntradas}</span>
+                                <span>${registro.fields.descricaoEntrada}</span>
+                                <span>${registro.fields.pregacao}</span>
+                            </div>
+                        `;
+                        listaRegistros.innerHTML += registroHTML;
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Erro ao obter registros do Sheet Monkey:', error);
+                });
         }
 
-        function generateID() {
-            return Math.floor(Math.random() * 10000);
+        function editarRegistro(id) {
+            var registro = {};
+            var listaRegistros = document.getElementById("listaRegistros");
+
+            axios.get(`https://api.sheetmonkey.io/form/mW4nqfcZwY47swj8qMka2t/${id}`)
+                .then(function (response) {
+                    registro = response.data.data;
+                    var edicaoForm = document.getElementById("edicaoForm");
+                    edicaoForm.innerHTML = '';
+
+                    for (var campo in registro.fields) {
+                        var valor = registro.fields[campo];
+                        edicaoForm.innerHTML += `
+                            <div>
+                                <label for="${campo}" style="font-size: 18px;">${campo}:</label>
+                                <input type="text" id="${campo}" name="${campo}" value="${valor}">
+                            </div>
+                        `;
+                    }
+
+                    var btnEditar = document.createElement("button");
+                    btnEditar.type = "button";
+                    btnEditar.className = "btn-editar";
+                    btnEditar.innerHTML = "Salvar Alterações";
+                    btnEditar.onclick = function () { salvarAlteracoes(id) };
+                    edicaoForm.appendChild(btnEditar);
+
+                    document.getElementById("edicaoPopup").style.display = "block";
+                })
+                .catch(function (error) {
+                    console.error('Erro ao obter registro do Sheet Monkey:', error);
+                });
+        }
+
+        function salvarAlteracoes(id) {
+            var edicaoForm = document.getElementById("edicaoForm");
+            var dados = {};
+
+            for (var i = 0; i < edicaoForm.elements.length; i++) {
+                if (edicaoForm.elements[i].type !== "button") {
+                    var campo = edicaoForm.elements[i].name;
+                    var valor = edicaoForm.elements[i].value;
+
+                    dados[campo] = valor;
+                }
+            }
+
+            axios.put(`https://api.sheetmonkey.io/form/mW4nqfcZwY47swj8qMka2t/${id}`, dados)
+                .then(function (response) {
+                    console.log('Alterações salvas no Sheet Monkey com sucesso:', response);
+                    limparCampos();
+                    document.getElementById("edicaoPopup").style.display = "none";
+                    exibirVisualizacao();
+                })
+                .catch(function (error) {
+                    console.error('Erro ao salvar alterações no Sheet Monkey:', error);
+                });
         }
 
         function limparCampos() {
@@ -150,6 +256,9 @@
                     formulario.elements[i].value = "";
                 }
             }
+
+            var edicaoForm = document.getElementById("edicaoForm");
+            edicaoForm.innerHTML = '';
         }
     </script>
 </body>

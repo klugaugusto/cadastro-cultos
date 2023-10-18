@@ -109,6 +109,7 @@
                 .then(function (response) {
                     console.log('Dados enviados para o Sheet Monkey com sucesso:', response);
                     enviarWhatsapp();
+                    limparCampos();
                 })
                 .catch(function (error) {
                     console.error('Erro ao enviar dados para o Sheet Monkey:', error);
@@ -140,6 +141,15 @@
 
         function generateID() {
             return Math.floor(Math.random() * 10000);
+        }
+
+        function limparCampos() {
+            var formulario = document.getElementById("cadastroForm");
+            for (var i = 0; i < formulario.elements.length; i++) {
+                if (formulario.elements[i].type !== "button" && formulario.elements[i].type !== "tel") {
+                    formulario.elements[i].value = "";
+                }
+            }
         }
     </script>
 </body>

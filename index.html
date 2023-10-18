@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Cadastro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cadastro</h2>
+        <form id="cadastroForm">
+            <div>
+                <label for="comunidade">Comunidade:</label>
+                <input type="text" id="comunidade" name="comunidade">
+            </div>
+            <div>
+                <label for="dataCulto">Data do Culto:</label>
+                <input type="text" id="dataCulto" name="dataCulto">
+            </div>
+            <div>
+                <label for="presencaTotal">Presença total:</label>
+                <input type="number" id="presencaTotal" name="presencaTotal">
+            </div>
+            <div>
+                <label for="totalOferta">Total da Oferta:</label>
+                <input type="number" id="totalOferta" name="totalOferta">
+            </div>
+            <div>
+                <label for="destinoOferta">Destino da Oferta:</label>
+                <input type="text" id="destinoOferta" name="destinoOferta">
+            </div>
+            <div>
+                <label for="outrasEntradas">Outras entradas:</label>
+                <input type="text" id="outrasEntradas" name="outrasEntradas">
+            </div>
+            <div>
+                <label for="descricaoEntrada">Descrição da entrada:</label>
+                <input type="text" id="descricaoEntrada" name="descricaoEntrada">
+            </div>
+            <div>
+                <label for="pregacao">Texto bíblico da Pregação:</label>
+                <input type="text" id="pregacao" name="pregacao">
+            </div>
+            <div>
+                <label for="numeroWhatsapp">Número do Whatsapp:</label>
+                <input type="text" id="numeroWhatsapp" name="numeroWhatsapp">
+            </div>
+            <button type="button" onclick="enviarWhatsapp()">Enviar para Whatsapp</button>
+        </form>
+    </div>
+
+    <script>
+        function enviarWhatsapp() {
+            var formulario = document.getElementById("cadastroForm");
+            var mensagem = "Novo registro:\n";
+
+            for (var i = 0; i < formulario.elements.length; i++) {
+                if (formulario.elements[i].type !== "button") {
+                    mensagem += formulario.elements[i].labels[0].innerText + ": " + formulario.elements[i].value + "\n";
+                }
+            }
+
+            var numeroWhatsapp = document.getElementById("numeroWhatsapp").value;
+
+            if (numeroWhatsapp) {
+                window.open("https://web.whatsapp.com/send?phone=" + numeroWhatsapp + "&text=" + encodeURIComponent(mensagem));
+            } else {
+                alert("Por favor, insira um número de Whatsapp.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -20,7 +20,7 @@
             box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="tel"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -78,7 +78,7 @@
             </div>
             <div>
                 <label for="numeroWhatsapp">Número do Whatsapp:</label>
-                <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-9]{9,15}">
+                <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-15]{9,15}" placeholder="Digite sem '+' ou espaços">
             </div>
             <button type="button" onclick="enviarWhatsapp()">Enviar para Whatsapp</button>
         </form>

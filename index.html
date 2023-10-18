@@ -20,13 +20,18 @@
             box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
         }
 
-        input[type="text"], input[type="number"], input[type="tel"] {
-            width: 100%;
+        input[type="text"], input[type="number"], input[type="tel"], input[type="date"] {
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
             box-sizing: border-box;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="tel"] {
+            width: 82%; /* Ajuste para o campo de telefone ficar com o mesmo tamanho que os outros */
         }
 
         button {
@@ -45,40 +50,40 @@
         <h2>Cadastro</h2>
         <form id="cadastroForm">
             <div>
-                <label for="comunidade">Comunidade:</label>
+                <label for="comunidade" style="font-size: 18px;">Comunidade:</label>
                 <input type="text" id="comunidade" name="comunidade">
             </div>
             <div>
-                <label for="dataCulto">Data do Culto:</label>
-                <input type="text" id="dataCulto" name="dataCulto">
+                <label for="dataCulto" style="font-size: 18px;">Data do Culto:</label>
+                <input type="date" id="dataCulto" name="dataCulto">
             </div>
             <div>
-                <label for="presencaTotal">Presença total:</label>
+                <label for="presencaTotal" style="font-size: 18px;">Presença total:</label>
                 <input type="number" id="presencaTotal" name="presencaTotal">
             </div>
             <div>
-                <label for="totalOferta">Total da Oferta:</label>
-                <input type="number" id="totalOferta" name="totalOferta">
+                <label for="totalOferta" style="font-size: 18px;">Total da Oferta:</label>
+                <input type="text" id="totalOferta" name="totalOferta" pattern="[0-9]+(\.[0-9]{2})?" placeholder="R$">
             </div>
             <div>
-                <label for="destinoOferta">Destino da Oferta:</label>
+                <label for="destinoOferta" style="font-size: 18px;">Destino da Oferta:</label>
                 <input type="text" id="destinoOferta" name="destinoOferta">
             </div>
             <div>
-                <label for="outrasEntradas">Outras entradas:</label>
-                <input type="text" id="outrasEntradas" name="outrasEntradas">
+                <label for="outrasEntradas" style="font-size: 18px;">Outras entradas:</label>
+                <input type="text" id="outrasEntradas" name="outrasEntradas" pattern="[0-9]+(\.[0-9]{2})?" placeholder="R$">
             </div>
             <div>
-                <label for="descricaoEntrada">Descrição da entrada:</label>
+                <label for="descricaoEntrada" style="font-size: 18px;">Descrição da entrada:</label>
                 <input type="text" id="descricaoEntrada" name="descricaoEntrada">
             </div>
             <div>
-                <label for="pregacao">Texto bíblico da Pregação:</label>
+                <label for="pregacao" style="font-size: 18px;">Texto bíblico da Pregação:</label>
                 <input type="text" id="pregacao" name="pregacao">
             </div>
             <div>
-                <label for="numeroWhatsapp">Número do Whatsapp:</label>
-                <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-15]{9,15}" placeholder="Digite sem '+' ou espaços">
+                <label for="numeroWhatsapp" style="font-size: 18px;">Número do Whatsapp:</label>
+                <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-9]{9,15}" placeholder="+55 (__) _________">
             </div>
             <button type="button" onclick="enviarWhatsapp()">Enviar para Whatsapp</button>
         </form>
@@ -87,10 +92,10 @@
     <script>
         function enviarWhatsapp() {
             var formulario = document.getElementById("cadastroForm");
-            var mensagem = "Novo registro:\n";
+            var mensagem = "Novo registro (ID: " + generateID() + "):\n";
 
             for (var i = 0; i < formulario.elements.length; i++) {
-                if (formulario.elements[i].type !== "button") {
+                if (formulario.elements[i].type !== "button" && formulario.elements[i].type !== "tel") {
                     mensagem += formulario.elements[i].labels[0].innerText + ": " + formulario.elements[i].value + "\n";
                 }
             }
@@ -106,6 +111,10 @@
             } else {
                 alert("Por favor, insira um número de Whatsapp.");
             }
+        }
+
+        function generateID() {
+            return Math.floor(Math.random() * 10000);
         }
     </script>
 </body>

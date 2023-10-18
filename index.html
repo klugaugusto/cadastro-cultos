@@ -31,7 +31,7 @@
         }
 
         input[type="tel"] {
-            width: 82%; /* Ajuste para o campo de telefone ficar com o mesmo tamanho que os outros */
+            width: 82%;
         }
 
         button {
@@ -85,18 +85,47 @@
                 <label for="numeroWhatsapp" style="font-size: 18px;">Número do Whatsapp:</label>
                 <input type="tel" id="numeroWhatsapp" name="numeroWhatsapp" pattern="[0-9]{9,15}" placeholder="+55 (__) _________">
             </div>
-            <button type="button" onclick="enviarWhatsapp()">Enviar para Whatsapp</button>
+            <button type="button" onclick="enviarFormulario()">Enviar Dados</button>
         </form>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-firestore.js"></script>
+
     <script>
-        function enviarWhatsapp() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUi-3oRBuAO3F5z5sipfB0ys8ljiVjh9c",
+            authDomain: "caderno-de-cultos.firebaseapp.com",
+            projectId: "caderno-de-cultos",
+            storageBucket: "caderno-de-cultos.appspot.com",
+            messagingSenderId: "8928025958",
+            appId: "1:8928025958:web:d659768f209fb7a8d23ca7"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function enviarFormulario() {
             var formulario = document.getElementById("cadastroForm");
             var mensagem = "Novo registro (ID: " + generateID() + "):\n";
 
             for (var i = 0; i < formulario.elements.length; i++) {
                 if (formulario.elements[i].type !== "button" && formulario.elements[i].type !== "tel") {
-                    mensagem += formulario.elements[i].labels[0].innerText + ": " + formulario.elements[i].value + "\n";
+                    var campo = formulario.elements[i].labels[0].innerText;
+                    var valor = formulario.elements[i].value;
+
+                    mensagem += campo + ": " + valor + "\n";
+
+                    db.collection("registros").add({
+                        campo: campo,
+                        valor: valor
+                    })
+                    .then((docRef) => {
+                        console.log("Documento adicionado com ID: ", docRef.id);
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao adicionar documento: ", error);
+                    });
                 }
             }
 
